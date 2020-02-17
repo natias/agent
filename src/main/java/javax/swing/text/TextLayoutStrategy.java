@@ -183,7 +183,7 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
                 }
             }
             TextLayout tl = (isTab) ? null :
-               getNL(spanLeft, text.toIteratorIndex(endOffset),
+               getNL(text.toString(),spanLeft, text.toIteratorIndex(endOffset),
                        requireNextWord);
 
             if (tl != null) {
@@ -199,7 +199,7 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
 
 
 
-    private TextLayout getNL(float spanLeft, int toIteratorIndex, boolean requireNextWord) {
+    private TextLayout getNL(String s,float spanLeft, int toIteratorIndex, boolean requireNextWord) {
 
         LineBreakMeasurer lb=measurer;
 
@@ -212,6 +212,8 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
 
         StringBuilder stringBuilder=new StringBuilder();
 
+        stringBuilder.append(s);
+        stringBuilder.append("/");
         stringBuilder.append(measurerPosition);
         stringBuilder.append(".");
         stringBuilder.append(c_spanLeft);
@@ -333,7 +335,7 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
                 int p1 = child.getEndOffset();
                 measurer.setPosition(text.toIteratorIndex(p0));
 
-                TextLayout layout =getNL(Float.MAX_VALUE,text.toIteratorIndex(p1), false );
+                TextLayout layout =getNL(text.toString(),Float.MAX_VALUE,text.toIteratorIndex(p1), false );
 
 //                    = measurer.nextLayout( Float.MAX_VALUE,
 //                                           text.toIteratorIndex(p1), false );
