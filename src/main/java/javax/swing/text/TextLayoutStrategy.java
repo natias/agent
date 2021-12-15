@@ -1,26 +1,26 @@
 /*
  * Copyright (c) 1999, 2008, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
  *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
  */
 package javax.swing.text;
 
@@ -45,6 +45,10 @@ import sun.font.BidiUtils;
  */
 class TextLayoutStrategy extends FlowView.FlowStrategy {
 
+
+static{
+System.out.println("tecteam TextLayoutStrategy modified version loaded");
+}
     /**
      * Constructs a layout strategy for paragraphs based
      * upon java.awt.font.LineBreakMeasurer.
@@ -84,7 +88,15 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
         super.removeUpdate(fv, e, alloc);
     }
 
-
+    /**
+     * Gives notification from the document that attributes were changed
+     * in a location that this view is responsible for.
+     *
+     * @param changes the change information from the associated document
+     * @param a the current allocation of the view
+     * @param f the factory to use to rebuild if the view has children
+     * @see View#changedUpdate
+     */
     public void changedUpdate(FlowView fv, DocumentEvent e, Rectangle alloc) {
         sync(fv);
         super.changedUpdate(fv, e, alloc);
@@ -102,6 +114,19 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
         super.layout(fv);
     }
 
+    /**
+     * Creates a row of views that will fit within the
+     * layout span of the row.  This is implemented to execute the
+     * superclass functionality (which fills the row with child
+     * views or view fragments) and follow that with bidi reordering
+     * of the unidirectional view fragments.
+     *
+     * @param row the row to fill in with views.  This is assumed
+     *   to be empty on entry.
+     * @param pos  The current position in the children of
+     *   this views element from which to start.
+     * @return the position to start the next row
+     */
     protected int layoutRow(FlowView fv, int rowIndex, int p0) {
         int p1 = super.layoutRow(fv, rowIndex, p0);
         View row = fv.getView(rowIndex);
@@ -130,10 +155,19 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
         return p1;
     }
 
+    /**
+     * Adjusts the given row if possible to fit within the
+     * layout span.  Since all adjustments were already
+     * calculated by the LineBreakMeasurer, this is implemented
+     * to do nothing.
+     *
+     * @param r the row to adjust to the current layout
+     *  span.
+     * @param desiredSpan the current layout span >= 0
+     * @param x the location r starts at.
+     */
     protected void adjustRow(FlowView fv, int rowIndex, int desiredSpan, int x) {
     }
-
-
 
     /**
      * Creates a unidirectional view that can be used to represent the
@@ -183,8 +217,14 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
                 }
             }
             TextLayout tl = (isTab) ? null :
-               getNL(text.toString(),spanLeft, text.toIteratorIndex(endOffset),
+
+			  getNL(text.toString(),spanLeft, text.toIteratorIndex(endOffset),
                        requireNextWord);
+
+
+               // measurer.nextLayout(spanLeft, text.toIteratorIndex(endOffset),
+                //                    requireNextWord);
+
 
             if (tl != null) {
                 ((GlyphView)frag).setGlyphPainter(new GlyphPainter2(tl));
@@ -194,7 +234,7 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
     }
 
 
-    java.util.Map<String,java.awt.font.TextLayout> cacheTLay=new java.util.HashMap<>();
+java.util.Map<String,java.awt.font.TextLayout> cacheTLay=new java.util.HashMap<>();
 
 
 
@@ -235,6 +275,8 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
 
         return ret;
     }
+
+
 
     /**
      * Calculate the limiting offset for the next view fragment.
@@ -334,13 +376,9 @@ class TextLayoutStrategy extends FlowView.FlowStrategy {
                 int p0 = child.getStartOffset();
                 int p1 = child.getEndOffset();
                 measurer.setPosition(text.toIteratorIndex(p0));
-
                 TextLayout layout =getNL(text.toString(),Float.MAX_VALUE,text.toIteratorIndex(p1), false );
-
 //                    = measurer.nextLayout( Float.MAX_VALUE,
-//                                           text.toIteratorIndex(p1), false );
-
-
+ //                                          text.toIteratorIndex(p1), false );
                 ((GlyphView)child).setGlyphPainter(new GlyphPainter2(layout));
             }
         }

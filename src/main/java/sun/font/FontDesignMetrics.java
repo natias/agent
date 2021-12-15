@@ -39,13 +39,12 @@ import java.awt.font.TextLayout;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import sun.java2d.Disposer;
 import sun.java2d.DisposerRecord;
-
+import java.util.*;
 /*
  * This class provides a summary of the glyph measurements  for a Font
  * and a set of hints that guide their display.  It provides more metrics
@@ -107,6 +106,11 @@ import sun.java2d.DisposerRecord;
 
 public final class FontDesignMetrics extends FontMetrics {
 
+
+static{
+System.out.println("tecteam  FontDesignMetric smodified version loaded");
+}
+ 
     static final long serialVersionUID = 4480069578560887773L;
 
     private static final float UNKNOWN_WIDTH = -1;
@@ -143,8 +147,10 @@ public final class FontDesignMetrics extends FontMetrics {
     private transient FontStrike fontStrike;
 
     private static FontRenderContext DEFAULT_FRC = null;
-    
+
+
     Map<String, Float> hebCache = new HashMap<>();
+
 
     private static FontRenderContext getDefaultFrc() {
 
@@ -249,7 +255,7 @@ public final class FontDesignMetrics extends FontMetrics {
         recentMetrics = new FontDesignMetrics[MAXRECENT];
     private static int recentIndex = 0;
 
-    public static FontDesignMetrics getMetrics(Font font) {    	
+    public static FontDesignMetrics getMetrics(Font font) {
         return getMetrics(font, getDefaultFrc());
      }
 
@@ -459,7 +465,8 @@ public final class FontDesignMetrics extends FontMetrics {
         return (int)(0.5 + w);
     }
 
-    public int stringWidth(String str) {    	
+    public int stringWidth(String str) {
+
         float width = 0;
         if (font.hasLayoutAttributes()) {
             /* TextLayout throws IAE for null, so throw NPE explicitly */
@@ -472,19 +479,21 @@ public final class FontDesignMetrics extends FontMetrics {
             width = new TextLayout(str, font, frc).getAdvance();
         } else {
             int length = str.length();
-            for (int i=0; i < length; i++) {                
-            	char ch = str.charAt(i);
-                if (ch < 0x100) {                	
+            for (int i=0; i < length; i++) {
+                char ch = str.charAt(i);
+                if (ch < 0x100) {
                     width += getLatinCharWidth(ch);
                 } else if (FontUtilities.isNonSimpleChar(ch)) {
-                	if (ch >= 0x0590 && ch <= 0x05ff) {
+            //        width = new TextLayout(str, font, frc).getAdvance();
+             //       break;
+if (ch >= 0x0590 && ch <= 0x05ff) {
                 		//This is a Hebrew char - get a cached version!
                 		width += getCachedHebrewWidth(ch, font, frc);
                 	} else {
                 		width = new TextLayout(str, font, frc).getAdvance();                		
                 		break;
-                	}                	
-                } else {                	
+                	}   
+                } else {
                     width += handleCharWidth(ch);
                 }
             }
@@ -492,10 +501,8 @@ public final class FontDesignMetrics extends FontMetrics {
 
         return (int) (0.5 + width);
     }
-    
-    
 
-	public int charsWidth(char data[], int off, int len) {
+    public int charsWidth(char data[], int off, int len) {
 
         float width = 0;
         if (font.hasLayoutAttributes()) {
@@ -595,12 +602,8 @@ public final class FontDesignMetrics extends FontMetrics {
             height = getAscent() + (int)(roundingUpValue + descent + leading);
         }
         return height;
-    }    
-    
-    /**
-     * Calculates char width and caches it for later use (to save render time)
-     */
-    private float getCachedHebrewWidth(char ch, Font font, FontRenderContext frc) {
+    }
+  private float getCachedHebrewWidth(char ch, Font font, FontRenderContext frc) {
 		String key = getStringHash(ch, font, frc);		
 		Float f = hebCache.get(key);
 		if (f != null ) {
@@ -623,5 +626,7 @@ public final class FontDesignMetrics extends FontMetrics {
 		result = prime * result + ((font == null) ? 0 : font.hashCode());
 		return result + "";
 	}    
-    
+
+
 }
+
